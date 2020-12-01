@@ -1,7 +1,7 @@
 <p align="center">
 
 
-  <h3 align="center">Amaps Niagara Widget</h3>
+  <h3 align="center">Echarts Niagara Widget</h3>
 
   <p align="center">
     An example of using grunt-niagara to build Niagara Widget

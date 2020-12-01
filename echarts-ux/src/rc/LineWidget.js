@@ -11,9 +11,9 @@ define([
   'hbs!nmodule/echarts/rc/LineWidgetTemplate',
   'nmodule/echarts/rc/lib/echarts.min',
   'css!nmodule/echarts/rc/echarts',
+  // '@babel/runtime',
 ], function (BaseEditor, subscriberMixin, $, Promise, LineWidgetTemplate, echarts) {
   'use strict';
-
 
   /**
    * A demonstration Widget. This builds a list of buttons from the slots of a
@@ -49,10 +49,36 @@ define([
     var option = {
       title: {
         text: 'ECharts histroy example',
+        subtext: '纯属虚构',
       },
-      tooltip: {},
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+          type: 'cross',
+          label: {
+            backgroundColor: '#283b56',
+          },
+        },
+      },
       legend: {
         data: ['Color'],
+      },
+      toolbox: {
+        show: true,
+        feature: {
+          dataZoom: {
+            yAxisIndex: 'none',
+          },
+          dataView: { readOnly: false },
+          magicType: { type: ['line', 'bar'] },
+          restore: {},
+          saveAsImage: {},
+        },
+      },
+      dataZoom: {
+        show: false,
+        start: 0,
+        end: 100,
       },
       xAxis: {
         data: [],
@@ -60,6 +86,7 @@ define([
       yAxis: {
         type: 'category',
       },
+      
       series: [],
     };
 
@@ -67,7 +94,7 @@ define([
     myChart.setOption(option);
   };
 
-  LineWidget.prototype.doLoad = async function (table) {
+  LineWidget.prototype.doLoad = function (table) {
     var that = this;
     let myChart = that.myChart;
     let option = {
@@ -76,33 +103,38 @@ define([
       },
       yAxis: {},
     };
-
     let serie = {
       data: [],
       type: 'line',
       name: 'Color',
     };
-    let cursors = await table.cursor({ limit: 50 });
-    // bajascript api
-    cursors.each((cursor) => {
-      console.count('data');
-      let value = cursor.getDisplay('value');
-      // todo: bad code
-      if (!option.yAxis.type && typeof value === 'string') {
-        option.yAxis.type = 'category';
-      }
-      let time = cursor.getDisplay('timestamp');
-      option.xAxis.data.push(time);
-      // 0 is hard-coded
-      serie.data.push(value);
-      // console.log(cursor.getDisplay('timestamp'));
+    console.log('lllllllllllll')
+    // limit
+    table.cursor({ limit: 200 }).then((cursors) => {
+      // bajascript api
+      cursors.each((cursor) => {
+        // console.count('data');
+        let value = cursor.getDisplay('value');
+        // todo: bad code
+        if (!option.yAxis.type && typeof value === 'string') {
+          option.yAxis.type = 'category';
+        }
+        let time = cursor.getDisplay('timestamp');
+        option.xAxis.data.push(time.split(' ')[0]);
+        // 0 is hard-coded
+        serie.data.push(value);
+        // console.log(cursor.getDisplay('timestamp'));
+      });
+      
+      // copy, not sure if nessary
+      let newSeries = [...myChart.getOption().series];
+      newSeries.push(serie);
+      console.log(option.xAxis);
+      // let barSerie = { ...serie, type: 'bar' };
+      // newSeries.push(barSerie);
+      option.series = newSeries;
+      myChart.setOption(option);
     });
-    let newSeries = [...myChart.getOption().series];
-    newSeries.push(serie);
-    // let barSerie = { ...serie, type: 'bar' };
-    // newSeries.push(barSerie);
-    option.series = newSeries;
-    myChart.setOption(option);
   };
 
   return LineWidget;

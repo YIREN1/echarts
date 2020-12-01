@@ -7,7 +7,8 @@ var loadTasksRelative = require('grunt-niagara/lib/loadTasksRelative');
 var SRC_FILES = ['src/rc/*.js', 'Gruntfile.js', '!src/rc/*.built.js', '!src/rc/*.min.js'],
   SPEC_FILES = ['srcTest/rc/spec/**/*.js'],
   TEST_FILES = ['srcTest/rc/*.js'],
-  ALL_FILES = SRC_FILES.concat(SPEC_FILES).concat(TEST_FILES);
+  ALL_FILES = SRC_FILES.concat(SPEC_FILES).concat(TEST_FILES),
+  JS_FILES = SRC_FILES.concat(SPEC_FILES).concat(TEST_FILES);
 
 module.exports = function runGrunt(grunt) {
   grunt.initConfig({
@@ -21,9 +22,9 @@ module.exports = function runGrunt(grunt) {
     requirejs: {
       src: {
         options: {
-          // paths: {
-          //   'nmodule/echarts': 'build/src',
-          // },
+          paths: {
+            'nmodule/echarts': 'build/src',
+          },
         },
       },
     },
@@ -45,6 +46,10 @@ module.exports = function runGrunt(grunt) {
         forceCopy: true,
         sourceStationFolder: './srcTest/rc/stations/echartsUnitTest',
       },
+    },
+    eslint: {
+      src: JS_FILES,
+      options: { configFile: '../../../.eslintrc.json', plugins: ['react'] },
     },
     babel: {
       options: {
